@@ -14,7 +14,9 @@
 #
 #   torch
 
-if ($ENV{TORCH_INSTALL_PREFIX})
+include(FindPackageHandleStandardArgs)
+
+if (DEFINED ENV{TORCH_INSTALL_PREFIX})
   set(TORCH_INSTALL_PREFIX $ENV{TORCH_INSTALL_PREFIX})
 else()
   # Assume we are in <install-prefix>/share/cmake/Torch/TorchConfig.cmake
@@ -23,10 +25,10 @@ else()
 endif()
 
 # Include directories.
-if (EXISTS "${TORCH_INSTALL_PREFIX}/lib/include")
+if (EXISTS "${TORCH_INSTALL_PREFIX}/include")
   set(TORCH_INCLUDE_DIRS
-    ${TORCH_INSTALL_PREFIX}/lib/include
-    ${TORCH_INSTALL_PREFIX}/lib/include/torch/csrc/api/include)
+    ${TORCH_INSTALL_PREFIX}/include
+    ${TORCH_INSTALL_PREFIX}/include/torch/csrc/api/include)
 else()
   set(TORCH_INCLUDE_DIRS
     ${TORCH_INSTALL_PREFIX}/include
@@ -34,13 +36,18 @@ else()
 endif()
 
 # Library dependencies.
-find_package(Caffe2 REQUIRED)
+if (ON)
+  find_package(Caffe2 REQUIRED PATHS ${CMAKE_CURRENT_LIST_DIR}/../Caffe2)
+endif()
 
 find_library(TORCH_LIBRARY torch PATHS "${TORCH_INSTALL_PREFIX}/lib")
-add_library(torch SHARED IMPORTED)
+add_library(torch UNKNOWN IMPORTED)
 set(TORCH_LIBRARIES torch ${Caffe2_MAIN_LIBS})
 
-if (0)
+find_library(C10_LIBRARY c10 PATHS "${TORCH_INSTALL_PREFIX}/lib")
+list(APPEND TORCH_LIBRARIES ${C10_LIBRARY})
+
+if (False)
   if(MSVC)
     set(NVTOOLEXT_HOME "C:/Program Files/NVIDIA Corporation/NvToolsExt")
     if ($ENV{NVTOOLEXT_HOME})
@@ -57,21 +64,30 @@ if (0)
       ${CUDA_TOOLKIT_ROOT_DIR}/lib/libnvToolsExt.dylib
       ${CUDA_LIBRARIES})
   else()
+    find_library(LIBNVTOOLSEXT libnvToolsExt.so PATHS ${CUDA_TOOLKIT_ROOT_DIR}/lib64/)
     set(TORCH_CUDA_LIBRARIES
       ${CUDA_CUDA_LIB}
       ${CUDA_NVRTC_LIB}
-      ${CUDA_TOOLKIT_ROOT_DIR}/lib64/libnvToolsExt.so
+      ${LIBNVTOOLSEXT}
       ${CUDA_LIBRARIES})
   endif()
+  find_library(C10_CUDA_LIBRARY c10_cuda PATHS "${TORCH_INSTALL_PREFIX}/lib")
+  list(APPEND TORCH_CUDA_LIBRARIES ${C10_CUDA_LIBRARY})
   list(APPEND TORCH_LIBRARIES ${TORCH_CUDA_LIBRARIES})
 endif()
 
 # When we build libtorch with the old GCC ABI, dependent libraries must too.
-set(TORCH_CXX_FLAGS "-D_GLIBCXX_USE_CXX11_ABI=")
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+  set(TORCH_CXX_FLAGS "-D_GLIBCXX_USE_CXX11_ABI=")
+endif()
 
 set_target_properties(torch PROPERTIES
     IMPORTED_LOCATION "${TORCH_LIBRARY}"
     INTERFACE_INCLUDE_DIRECTORIES "${TORCH_INCLUDE_DIRS}"
-    INTERFACE_COMPILE_OPTIONS "${TORCH_CXX_FLAGS}"
     CXX_STANDARD 11
 )
+if (TORCH_CXX_FLAGS)
+  set_property(TARGET torch PROPERTY INTERFACE_COMPILE_OPTIONS "${TORCH_CXX_FLAGS}")
+endif()
+
+find_package_handle_standard_args(torch DEFAULT_MSG TORCH_LIBRARY TORCH_INCLUDE_DIRS)

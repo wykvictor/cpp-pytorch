@@ -63,7 +63,7 @@ add_library(caffe2 SHARED IMPORTED)
 set_target_properties(caffe2 PROPERTIES
   INTERFACE_COMPILE_OPTIONS "\$<\$<COMPILE_LANGUAGE:CXX>:-std=c++11>"
   INTERFACE_INCLUDE_DIRECTORIES "${_IMPORT_PREFIX}/include"
-  INTERFACE_LINK_LIBRARIES "protobuf::libprotobuf;c10;Threads::Threads"
+  INTERFACE_LINK_LIBRARIES "protobuf::libprotobuf;c10;Threads::Threads;caffe2::mkldnn"
 )
 
 if(CMAKE_VERSION VERSION_LESS 2.8.12)

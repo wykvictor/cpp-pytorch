@@ -18,7 +18,7 @@
 #include "caffe2/utils/signal_handler.h"
 #include "caffe2/utils/threadpool/ThreadPool.h"
 
-CAFFE2_DECLARE_bool(caffe2_print_blob_sizes_at_exit);
+C10_DECLARE_bool(caffe2_print_blob_sizes_at_exit);
 
 namespace caffe2 {
 
@@ -308,7 +308,7 @@ class CAFFE2_API Workspace {
   }
 
  public:
-  std::atomic<int> last_failed_op_net_position;
+  std::atomic<int> last_failed_op_net_position{};
 
  private:
   struct Bookkeeper {

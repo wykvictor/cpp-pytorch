@@ -6,9 +6,9 @@
 # library version information
 
 set(CAFFE2_VERSION_MAJOR 1)
-set(CAFFE2_VERSION_MINOR 0)
+set(CAFFE2_VERSION_MINOR 1)
 set(CAFFE2_VERSION_PATCH 0)
-set(CAFFE2_VERSION "1.0.0")
+set(CAFFE2_VERSION "1.1.0")
 
 # Utils functions.
 include("${CMAKE_CURRENT_LIST_DIR}/public/utils.cmake")
@@ -78,13 +78,13 @@ else()
   endif()
 endif()
 
-if (0)
+if (False)
   # The file public/cuda.cmake exclusively uses CAFFE2_USE_*.
   # If Caffe2 was compiled with the libraries below, they must
   # be found again when including the Caffe2 target.
-  set(CAFFE2_USE_CUDA 0)
+  set(CAFFE2_USE_CUDA False)
   set(CAFFE2_USE_CUDNN OFF)
-  set(CAFFE2_USE_TENSORRT OFF)
+  set(CAFFE2_USE_TENSORRT False)
   include("${CMAKE_CURRENT_LIST_DIR}/public/cuda.cmake")
   if ( AND NOT CAFFE2_USE_CUDA)
     message(FATAL_ERROR
@@ -108,6 +108,10 @@ endif()
 
 include("${CMAKE_CURRENT_LIST_DIR}/public/mkl.cmake")
 
+if (True)
+  include("${CMAKE_CURRENT_LIST_DIR}/public/mkldnn.cmake")
+endif()
+
 # import targets
 include ("${CMAKE_CURRENT_LIST_DIR}/Caffe2Targets.cmake")
 
@@ -115,7 +119,7 @@ include ("${CMAKE_CURRENT_LIST_DIR}/Caffe2Targets.cmake")
 # We will also define a helper variable, Caffe2_MAIN_LIBS, that resolves to
 # the main caffe2 libraries in cases of cuda presence / absence.
 caffe2_interface_library(caffe2 caffe2_library)
-if (0)
+if (False)
   caffe2_interface_library(caffe2_gpu caffe2_gpu_library)
   set(Caffe2_MAIN_LIBS caffe2_library caffe2_gpu_library)
 else()

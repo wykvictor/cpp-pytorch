@@ -5,5 +5,5 @@
 # ATEN_FOUND -- set to 1 if found
 
 SET(ATEN_FOUND 1)
-SET(ATEN_INCLUDE_DIR "/Users/administrator/nightlies/2018_10_03/wheel_build_dirs/libtorch_2.7/pytorch/torch/lib/tmp_install/include")
+SET(ATEN_INCLUDE_DIR "/Users/distiller/project/pytorch/torch/include")
 SET(ATEN_LIBRARIES "")
