@@ -52,6 +52,8 @@ int main(int argc, const char* argv[]) {
   // Execute the model and turn its output into a tensor.
   torch::Tensor out_tensor = module->forward(inputs).toTensor();
   std::cout << out_tensor.slice(/*dim=*/1, /*start=*/0, /*end=*/10) << '\n';
+  // if output tensor is a 4-D tensor
+  // cv::Mat resoutImg(out_tensor.size(2), out_tensor.size(3), CV_32FC1, out_tensor.data<float>());
 
   // Load labels
   std::string label_file = argv[3];
